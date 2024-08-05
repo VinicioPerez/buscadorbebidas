@@ -1,13 +1,28 @@
 <script setup>
-    import { RouterLink } from 'vue-router'
+    import { computed, handleError } from 'vue'
+    import { RouterLink, useRoute} from 'vue-router'
+    import { useBebidasStore } from '@/stores/bebidas';
+
+    const route = useRoute()
+    const store = useBebidasStore()
+    const paginaInicio = computed(() => route.name === 'inicio')
+
+    const handleSubmit = () =>{
+        //TODO: Validar
+
+        store.obtenerRecetas()
+    }
+
+    
 
 </script>
 
 <template>
     <header
         class="bg-slate-800"
+        :class="{header: paginaInicio}"
     >
-        <div class="mx-auto container px-5 py-16">
+        <div class="mx-auto container px-5 py-6">
             <div class="flex justify-between items-center">
                 <div>
                     <RouterLink 
@@ -18,17 +33,17 @@
 
                 </div>
 
-                <nav class="flex gap-4">
+                <nav class="flex gap-4 text-white">
                     <RouterLink
                         :to="{name: 'inicio'}"
-                        class="text-white uppercase font-bold"
+                        class=" uppercase font-bold"
                          active-class="text-orange-500"
                     >
                     Inicio
                     </RouterLink>
                     <RouterLink
                         :to="{name: 'favoritos'}"
-                        class="text-white uppercase font-bold"
+                        class="uppercase font-bold"
                         active-class="text-orange-500"
                     >
                     Favoritos
@@ -38,7 +53,9 @@
 
             </div>
             <form
-                class="md:w-1/3 2xl:w-1/3 bg-orange-400 my-32 p-10 rounded-lg shadow space-y-6"
+                v-if="paginaInicio"
+                class="md:w-1/3 2xl:w-/3 bg-gradient-to-r from-orange-300 to-lime-300 my-16 p-10 rounded-lg shadow space-y-6"
+                @submit.prevent="handleSubmit"
             >
                 <div class="space-y-4">
                     <label
@@ -49,6 +66,7 @@
                         type="text"
                         class="p-3 w-full rounded-lg focus:outline-none"
                         placeholder="Nombre o Ingrediente: ej. Vodka, Tequila, etc."
+                        v-model="store.busqueda.nombre"
                     >
                 </div>
 
@@ -59,13 +77,19 @@
                     <select 
                         id="categoria"                        
                         class="p-3 w-full rounded-lg focus:outline-none"
+                        v-model="store.busqueda.categoria"
                     >
                         <option value="">-- Seleccione --</option>
+                        <option 
+                            v-for="categoria in store.categorias"
+                            :key="categoria.strCategory"
+                            :value="categoria.strCategory"                            
+                        >{{ categoria.strCategory }}</option>
                     </select>
                 </div>
                 <input 
                     type="submit"
-                    class="bg-orange-800 hover:bg-orange-900 cursor-pointer text-white font-extrabold w-full p-2 rounded-lg uppercase"
+                    class="bg-orange-400 hover:bg-orange-600 cursor-pointer text-white font-extrabold w-full p-2 rounded-lg uppercase"
                     value="Buscar Recetas"
                 >
 
@@ -73,3 +97,12 @@
         </div>
     </header>
 </template>
+
+<style>
+    .header{
+        /* background-image: linear-gradient(to bottom, #FFC107, #FF9800); */
+        background-image: url('/img/bg.jpg');
+        background-size: cover;
+        background-position: center;
+    }
+</style>
